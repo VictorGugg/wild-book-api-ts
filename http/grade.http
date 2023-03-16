@@ -1,0 +1,8 @@
+POST http://localhost:3030/api/grade
+Content-Type: application/json
+
+{
+    "wilderId": 3,
+    "skillName": "PHP",
+    "rating": 8
+}

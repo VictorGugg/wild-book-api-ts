@@ -5,7 +5,7 @@ import { Wilder } from "../entity/Wilder";
 import { Skill } from "../entity/Skill";
 // import { Grade } from "../entity/Grade";
 
-import { In } from "typeorm";
+import { Grade } from "../entity/Grade";
 
 const wilderController = {
   create: async (req: Request, res: Response) => {
@@ -24,7 +24,12 @@ const wilderController = {
       const allWilders = await dataSource
         .getRepository(Wilder)
         // find parameters to display newly added first
-        .find({ order: { id: "DESC" } });
+        .find({
+          relations: {
+            grades: { skill: true },
+          },
+          order: { id: "DESC" },
+        });
       res.send(allWilders);
     } catch (err) {
       console.log("Errors while reading the wilders.");
@@ -49,54 +54,57 @@ const wilderController = {
     }
   },
 
-  addSkills: async (req: Request, res: Response) => {
-    try {
-      const wilderToUpdate = await dataSource
-        .getRepository(Wilder)
-        .findOneByOrFail({ name: req.body.wilder });
-      // console.log to make sure we've got a wilder
-      console.log(wilderToUpdate);
-      const skillsToAdd = await dataSource
-        .getRepository(Skill)
-        // findBy and In (to get all skills whose name is in the array)
-        // to get an array from the request (to allow multiple skills selection)
-        .findBy({ name: In(req.body.skill) });
-      // console.log to make sure we've got skills
-      console.log(skillsToAdd);
-      // We have an array, so we need to use the spread syntax ('...')
-      // to split the elements of an array (and push them into our skills array).
-      wilderToUpdate.skills?.push(...skillsToAdd);
-      await dataSource.getRepository(Wilder).save(wilderToUpdate);
-      res.send("Skills successfully added to the Wilder !");
-    } catch (err) {
-      console.log(err);
-      res.send("Error while adding the skill.");
-    }
-  },
-
-  // rateSkill: async (req: Request, res: Response) => {
+  // addSkills: async (req: Request, res: Response) => {
   //   try {
   //     const wilderToUpdate = await dataSource
   //       .getRepository(Wilder)
-  //       .findOneByOrFail({ name: req.body.wilderName });
+  //       .findOneByOrFail({ name: req.body.wilder });
   //     // console.log to make sure we've got a wilder
   //     console.log(wilderToUpdate);
-  //     const skillToRate = await dataSource
+  //     const skillsToAdd = await dataSource
   //       .getRepository(Skill)
-  //       .findOneByOrFail({ name: req.body.skillName });
-  //     // console.log to make sure we've got a skill
-  //     console.log(skillToRate);
-  //     const rating = await dataSource.getRepository(Grade).save({
-  //       rating: req.body.rating,
-  //       skills: skillToRate,
-  //       wilders: wilderToUpdate,
-  //     });
-  //     res.send("Skill successfully rated !");
+  //       // findBy and In (to get all skills whose name is in the array)
+  //       // to get an array from the request (to allow multiple skills selection)
+  //       .findBy({ name: In(req.body.skill) });
+  //     // console.log to make sure we've got skills
+  //     console.log(skillsToAdd);
+  //     // We have an array, so we need to use the spread syntax ('...')
+  //     // to split the elements of an array (and push them into our skills array).
+  //     wilderToUpdate.skills?.push(...skillsToAdd);
+  //     await dataSource.getRepository(Wilder).save(wilderToUpdate);
+  //     res.send("Skills successfully added to the Wilder !");
   //   } catch (err) {
   //     console.log(err);
-  //     res.send("Error while rating the skill.");
+  //     res.send("Error while adding the skill.");
   //   }
   // },
+
+  rateSkill: async (req: Request, res: Response) => {
+    try {
+      const wilderToUpdate = await dataSource
+        .getRepository(Wilder)
+        .findOneByOrFail({ id: req.body.wilderId });
+      // console.log to make sure we've got a wilder
+      console.log(wilderToUpdate);
+      const skillToRate = await dataSource
+        .getRepository(Skill)
+        .findBy({ id: req.body.skillId });
+      // console.log to make sure we've got a skill
+      console.log(skillToRate);
+      const rating = await dataSource.getRepository(Grade).save({
+        wilderId: req.body.wilderId,
+        skillId: req.body.skillId,
+        rating: req.body.rating,
+      });
+      console.log(rating);
+      wilderToUpdate.grades.push(rating);
+      await dataSource.getRepository(Wilder).save(wilderToUpdate);
+      res.send("Skill successfully rated !");
+    } catch (err) {
+      console.log(err);
+      res.send("Error while rating the skill.");
+    }
+  },
 };
 
 export default wilderController;

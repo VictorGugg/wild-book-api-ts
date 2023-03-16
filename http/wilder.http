@@ -38,7 +38,7 @@ PUT http://localhost:3030/api/wilder-rate-skill
 Content-Type: application/json
 
 {
-    "wilderName": "Victor",
-    "skillName": "PHP",
+    "wilderId": 3,
+    "skillId": 3,
     "rating": 7
 }

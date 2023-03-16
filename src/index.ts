@@ -7,6 +7,7 @@ import dataSource from "./utils";
 
 import wilderController from "./controller/wilderController";
 import skillController from "./controller/skillController";
+import gradeController from "./controller/gradeController";
 
 const PORT = 3030;
 
@@ -29,15 +30,21 @@ app.get("/api/wilder", wilderController.read);
 app.put("/api/wilder/:id", wilderController.update);
 app.delete("/api/wilder/:id", wilderController.delete);
 
-app.put("/api/wilder-add-skills", wilderController.addSkills);
+// app.put("/api/wilder-add-skills", wilderController.addSkills);
 
-// app.put("/api/wilder-rate-skill", wilderController.rateSkill);
+app.put("/api/wilder-rate-skill", wilderController.rateSkill);
 
 // Skill Routes
 app.post("/api/skill", skillController.create);
 app.get("/api/skill", skillController.read);
 app.put("/api/skill/:id", skillController.update);
 app.delete("/api/skill/:id", skillController.delete);
+
+// Grade Routes
+app.post("/api/grade", gradeController.create);
+app.get("/api/grade", gradeController.read);
+app.put("/api/grade/:id", gradeController.update);
+app.delete("/api/grade/:id", gradeController.delete);
 
 const start = async (): Promise<void> => {
   // await makes the script wait for the action to execute before continuing running
